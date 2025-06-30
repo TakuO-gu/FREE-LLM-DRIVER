@@ -26,6 +26,9 @@ from src.agent.orchestrator import LightweightOrchestrator
 from src.utils.quota_tracker import QuotaTracker
 from src.utils.auto_optimizer import AutoOptimizer
 from src.core.neural_kernel import NeuralKernel
+from src.core.emotional_system import EmotionalProcessingSystem
+from src.core.executive_controller import ExecutiveController
+from src.core.integrated_neural_system import IntegratedNeuralSystem
 from dotenv import load_dotenv
 
 class FreeLLMDriver:
@@ -39,6 +42,9 @@ class FreeLLMDriver:
         self.quota_tracker = None
         self.optimizer = None
         self.neural_kernel = None
+        self.emotional_system = None
+        self.executive_controller = None
+        self.integrated_neural_system = None
         
         # ログ設定
         self._setup_logging()
@@ -94,6 +100,25 @@ class FreeLLMDriver:
             await self.neural_kernel.start_neural_kernel()
             logging.info("🧠 Neural Kernel 起動完了")
             
+            # Emotional Processing System初期化
+            self.emotional_system = EmotionalProcessingSystem()
+            logging.info("💭 Emotional Processing System 初期化完了")
+            
+            # Executive Controller初期化
+            self.executive_controller = ExecutiveController()
+            logging.info("🎯 Executive Controller 初期化完了")
+            
+            # Integrated Neural System初期化と統合
+            self.integrated_neural_system = IntegratedNeuralSystem()
+            neural_integration_success = await self.integrated_neural_system.initialize_neural_systems(
+                self.neural_kernel, self.emotional_system, self.executive_controller
+            )
+            
+            if neural_integration_success:
+                logging.info("🧠 統合神経システム初期化完了")
+            else:
+                logging.warning("⚠️ 統合神経システム初期化に一部問題が発生")
+            
             logging.info("✅ システム初期化完了")
             return True
             
@@ -135,6 +160,13 @@ class FreeLLMDriver:
         try:
             logging.info(f"🎯 目標実行: {goal}")
             
+            # 感情的評価による優先度調整
+            if self.emotional_system:
+                emotional_context = await self.emotional_system.evaluate_task_emotion(goal, "goal_execution")
+                logging.info(f"💭 感情的評価: {emotional_context.state.value} "
+                           f"(脅威レベル: {emotional_context.threat_level.name}, "
+                           f"信頼度: {emotional_context.confidence:.2f})")
+            
             # 実行前の最適化チェック
             recommendations = self.optimizer.generate_optimization_recommendations()
             if recommendations:
@@ -144,6 +176,20 @@ class FreeLLMDriver:
             
             # 目標実行
             result = await self.orchestrator.execute_goal(goal)
+            
+            # 感情的結果処理
+            if self.emotional_system and hasattr(result, 'results') and result.results:
+                for execution_result in result.results:
+                    task_result = {
+                        'success': execution_result.status.value == 'completed',
+                        'execution_time': execution_result.execution_time,
+                        'quality': 0.8 if execution_result.status.value == 'completed' else 0.2,
+                        'task_type': 'goal_execution'
+                    }
+                    await self.emotional_system.process_task_outcome(
+                        execution_result.task_id, goal, "goal_execution",
+                        task_result, emotional_context
+                    )
             
             # 使用量記録
             for execution_result in result.results:
@@ -213,6 +259,8 @@ class FreeLLMDriver:
                         await self._show_optimization()
                     elif user_input == '/neural':
                         await self._show_neural_status()
+                    elif user_input == '/emotion':
+                        await self._show_emotional_status()
                     else:
                         print("❓ 未知のコマンドです。/help で使用可能コマンドを確認")
                     continue
@@ -236,6 +284,7 @@ class FreeLLMDriver:
   /status    - システム状況を表示
   /optimize  - 最適化状況を表示
   /neural    - Neural Kernel状況を表示
+  /emotion   - 感情システム状況を表示
   /quit      - 終了
 
 使用例:
@@ -374,6 +423,77 @@ class FreeLLMDriver:
             
         except Exception as e:
             logging.error(f"❌ Neural Kernel状況表示エラー: {e}")
+    
+    async def _show_emotional_status(self) -> None:
+        """感情システム状況表示"""
+        try:
+            print("\n💭 感情処理システム状況")
+            print("-" * 40)
+            
+            if not self.emotional_system:
+                print("❌ 感情処理システムが初期化されていません")
+                return
+            
+            # 感情システム統計
+            stats = self.emotional_system.get_emotional_statistics()
+            
+            # 現在の感情状態
+            current_state = stats.get('current_state', 'unknown')
+            state_emoji = {
+                'neutral': '😐',
+                'positive': '😊',
+                'negative': '😔',
+                'anxious': '😰',
+                'confident': '😎',
+                'frustrated': '😤'
+            }.get(current_state, '❓')
+            
+            print(f"\n{state_emoji} 現在の感情状態: {current_state}")
+            
+            # 脅威検知システム
+            threat_stats = stats.get('threat_detector', {})
+            learned_threats = threat_stats.get('learned_threats', 0)
+            print(f"\n🔍 脅威検知システム:")
+            print(f"  学習済み脅威パターン: {learned_threats}個")
+            
+            # 記憶システム
+            memory_stats = stats.get('memory_manager', {})
+            print(f"\n🧠 記憶システム:")
+            print(f"  エピソード記憶: {memory_stats.get('episodic_memory_size', 0)}件")
+            print(f"  意味記憶パターン: {memory_stats.get('semantic_patterns', 0)}個")
+            print(f"  作業記憶: {memory_stats.get('working_memory_size', 0)}件")
+            print(f"  総合成功率: {memory_stats.get('success_rate', 0.0):.1%}")
+            print(f"  総経験数: {memory_stats.get('total_experiences', 0)}件")
+            print(f"  記憶統合回数: {memory_stats.get('memory_consolidations', 0)}回")
+            
+            # 報酬システム
+            reward_stats = stats.get('reward_system', {})
+            print(f"\n🎯 報酬システム:")
+            print(f"  報酬履歴: {reward_stats.get('reward_history_size', 0)}件")
+            print(f"  期待報酬パターン: {reward_stats.get('expected_rewards', 0)}個")
+            
+            # 感情履歴
+            emotional_history_size = stats.get('emotional_history_size', 0)
+            print(f"\n📊 感情履歴: {emotional_history_size}件記録")
+            
+            # 最近の感情変化（可能であれば）
+            if hasattr(self.emotional_system, 'emotional_history') and self.emotional_system.emotional_history:
+                recent_emotions = list(self.emotional_system.emotional_history)[-5:]
+                print(f"\n📈 最近の感情変化:")
+                for i, emotion in enumerate(recent_emotions):
+                    emotion_emoji = {
+                        'neutral': '😐',
+                        'positive': '😊', 
+                        'negative': '😔',
+                        'anxious': '😰',
+                        'confident': '😎',
+                        'frustrated': '😤'
+                    }.get(emotion.state.value, '❓')
+                    print(f"  {i+1}. {emotion_emoji} {emotion.state.value} "
+                          f"(脅威: {emotion.threat_level.name}, 信頼度: {emotion.confidence:.2f})")
+            
+        except Exception as e:
+            logging.error(f"❌ 感情システム状況表示エラー: {e}")
     
     async def cleanup(self):
         """クリーンアップ処理"""
