@@ -1,0 +1,23 @@
+# 無料LLMプロバイダー用のクライアント
+openai>=1.0.0
+google-generativeai>=0.3.0
+groq>=0.4.0
+
+# 非同期処理・HTTP通信
+aiohttp>=3.8.0
+asyncio
+requests>=2.28.0
+
+# データ処理・設定管理
+pyyaml>=6.0
+python-dotenv>=1.0.0
+
+# ユーティリティ
+typing-extensions>=4.0.0
+psutil>=5.9.0
+
+# 開発・テスト用（オプション）
+pytest>=7.0.0
+pytest-asyncio>=0.21.0
+black>=23.0.0
+flake8>=6.0.0

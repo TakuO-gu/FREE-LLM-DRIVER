@@ -1,0 +1,66 @@
+# レート制限設定
+rate_limits:
+  google_gemini:
+    requests_per_minute: 60
+    requests_per_day: 1500
+    requests_per_month: 45000
+    
+  groq_llama:
+    requests_per_minute: 30
+    requests_per_day: 14400
+    requests_per_month: 432000
+    
+  together_ai:
+    requests_per_minute: 10
+    requests_per_day: 6          # 月200リクエスト ÷ 30日
+    requests_per_month: 200
+
+# キャッシュ設定
+cache:
+  enable_caching: true
+  max_cache_size: 1000
+  cache_ttl_hours: 24
+  persist_to_disk: true
+  auto_cleanup_interval_hours: 6
+
+# バッチ処理設定
+batch_processing:
+  enable_batch: true
+  max_batch_size: 3
+  batch_timeout_seconds: 120
+  min_batch_delay_seconds: 1
+
+# 最適化設定
+optimization:
+  enable_auto_optimization: true
+  quota_warning_threshold: 0.8    # 80%使用時に警告
+  quota_critical_threshold: 0.95  # 95%使用時に制限
+  
+  # プロバイダー自動選択
+  enable_smart_routing: true
+  performance_tracking: true
+  
+  # エラーハンドリング
+  max_consecutive_failures: 5
+  failure_penalty_seconds: 60
+
+# ログ設定
+logging:
+  level: INFO
+  enable_file_logging: true
+  log_file: logs/free_llm_driver.log
+  max_log_size_mb: 10
+  backup_count: 5
+  
+  # 詳細ログ
+  log_api_requests: false
+  log_cache_operations: false
+  log_rate_limiting: true
+
+# 監視設定
+monitoring:
+  enable_usage_tracking: true
+  daily_report: true
+  weekly_summary: true
+  export_metrics: true
+  metrics_file: logs/usage_metrics.json

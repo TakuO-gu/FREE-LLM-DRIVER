@@ -1,0 +1,49 @@
+# LLMプロバイダー設定
+providers:
+  google_gemini:
+    model: "gemini-1.5-flash"
+    api_key_env: "GOOGLE_API_KEY"
+    base_url: "https://generativelanguage.googleapis.com/v1beta"
+    max_tokens: 2048
+    temperature: 0.7
+    timeout: 30
+    
+  groq_llama:
+    model: "llama3-70b-8192"
+    api_key_env: "GROQ_API_KEY"
+    base_url: "https://api.groq.com/openai/v1"
+    max_tokens: 4096
+    temperature: 0.3
+    timeout: 60
+    
+  together_ai:
+    model: "meta-llama/Llama-3-8b-chat-hf"
+    api_key_env: "TOGETHER_API_KEY"
+    base_url: "https://api.together.xyz/v1"
+    max_tokens: 2048
+    temperature: 0.5
+    timeout: 45
+
+# プロバイダー優先順位設定
+priority:
+  - google_gemini    # メイン
+  - groq_llama      # 高速処理用
+  - together_ai     # バックアップ
+
+# タスクタイプ別最適プロバイダー
+task_mapping:
+  code_generation: groq_llama      # 高速コード生成
+  complex_reasoning: google_gemini  # 複雑な推論
+  simple_task: together_ai         # 簡単なタスク
+  general: google_gemini           # デフォルト
+  translation: google_gemini       # 翻訳
+  summarization: groq_llama        # 要約
+  analysis: google_gemini          # 分析
+
+# フォールバック設定
+fallback:
+  max_retries: 3
+  retry_delay_seconds: 2
+  circuit_breaker_threshold: 0.5
+  temp_disable_duration_seconds: 300
+  emergency_provider: together_ai
