@@ -261,6 +261,8 @@ class FreeLLMDriver:
                         await self._show_neural_status()
                     elif user_input == '/emotion':
                         await self._show_emotional_status()
+                    elif user_input == '/brain':
+                        await self._show_integrated_brain_status()
                     else:
                         print("❓ 未知のコマンドです。/help で使用可能コマンドを確認")
                     continue
@@ -285,6 +287,7 @@ class FreeLLMDriver:
   /optimize  - 最適化状況を表示
   /neural    - Neural Kernel状況を表示
   /emotion   - 感情システム状況を表示
+  /brain     - 統合脳システム状況を表示
   /quit      - 終了
 
 使用例:
@@ -494,6 +497,101 @@ class FreeLLMDriver:
             
         except Exception as e:
             logging.error(f"❌ 感情システム状況表示エラー: {e}")
+    
+    async def _show_integrated_brain_status(self) -> None:
+        """統合脳システム状況表示"""
+        try:
+            print("\n🧠 統合脳システム状況")
+            print("-" * 40)
+            
+            if not self.integrated_neural_system:
+                print("❌ 統合神経システムが初期化されていません")
+                return
+            
+            # 統合統計の取得
+            integration_stats = self.integrated_neural_system.get_integration_statistics()
+            
+            # 基本情報
+            integration_level = integration_stats.get('current_integration_level', 'unknown')
+            integration_emoji = {
+                'BASIC': '🟡',
+                'MODERATE': '🟠', 
+                'HIGH': '🔴',
+                'SEAMLESS': '🟢'
+            }.get(integration_level, '❓')
+            
+            print(f"\n{integration_emoji} 統合レベル: {integration_level}")
+            print(f"📊 処理履歴: {integration_stats.get('processing_history_size', 0)}件")
+            print(f"📈 成功率: {integration_stats.get('success_rate', 0):.1%}")
+            
+            # 学習メトリクス
+            learning_metrics = integration_stats.get('learning_metrics', {})
+            print(f"\n📚 学習統計:")
+            print(f"  総処理目標数: {learning_metrics.get('total_goals_processed', 0)}")
+            print(f"  成功統合数: {learning_metrics.get('successful_integrations', 0)}")
+            print(f"  緊急発動回数: {learning_metrics.get('emergency_activations', 0)}")
+            print(f"  適応イベント: {learning_metrics.get('adaptation_events', 0)}")
+            
+            # フィードバックループ統計
+            feedback_stats = integration_stats.get('feedback_statistics', {})
+            active_loops = feedback_stats.get('active_loops', 0)
+            total_loops = feedback_stats.get('total_loops', 0)
+            
+            print(f"\n🔄 フィードバックループ:")
+            print(f"  アクティブループ: {active_loops}/{total_loops}")
+            
+            loop_types = feedback_stats.get('loop_types', {})
+            for loop_type, count in loop_types.items():
+                loop_emoji = {
+                    'immediate': '⚡',
+                    'tactical': '🎯',
+                    'strategic': '🧠'
+                }.get(loop_type, '🔄')
+                print(f"  {loop_emoji} {loop_type}: {count}個")
+            
+            # 最近の処理モード
+            recent_modes = integration_stats.get('recent_processing_modes', [])
+            if recent_modes:
+                print(f"\n🎭 最近の処理モード:")
+                mode_counts = {}
+                for mode in recent_modes[-10:]:  # 最新10件
+                    mode_counts[mode] = mode_counts.get(mode, 0) + 1
+                
+                for mode, count in sorted(mode_counts.items(), key=lambda x: x[1], reverse=True):
+                    mode_emoji = {
+                        'emergency': '🚨',
+                        'analytical': '🔍',
+                        'intuitive': '💡',
+                        'maintenance': '🔧'
+                    }.get(mode, '❓')
+                    print(f"  {mode_emoji} {mode}: {count}回")
+            
+            # システム統合健全性評価
+            success_rate = integration_stats.get('success_rate', 0)
+            if success_rate > 0.8:
+                health_status = "✅ 統合脳システムは良好に動作しています"
+            elif success_rate > 0.6:
+                health_status = "⚠️ 統合脳システムは安定していますが改善余地があります"
+            elif success_rate > 0.3:
+                health_status = "🚨 統合脳システムの最適化が必要です"
+            else:
+                health_status = "💀 統合脳システムに重大な問題があります"
+            
+            print(f"\n{health_status}")
+            
+            # 推奨事項
+            if active_loops < total_loops:
+                print(f"\n💡 推奨事項:")
+                print(f"  - 非アクティブなフィードバックループ（{total_loops - active_loops}個）の確認")
+            
+            if learning_metrics.get('emergency_activations', 0) > learning_metrics.get('total_goals_processed', 1) * 0.1:
+                print(f"  - 緊急発動が頻繁です。システム負荷の軽減を検討してください")
+            
+            if success_rate < 0.7:
+                print(f"  - 成功率が低いです。統合レベルの調整や学習データの見直しを推奨")
+                
+        except Exception as e:
+            logging.error(f"❌ 統合脳システム状況表示エラー: {e}")
     
     async def cleanup(self):
         """クリーンアップ処理"""

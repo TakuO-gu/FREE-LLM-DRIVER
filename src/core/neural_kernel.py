@@ -85,8 +85,8 @@ class HealthMonitor:
             vital_signs = {}
             alerts = []
             
-            # CPU使用率
-            cpu_percent = psutil.cpu_percent(interval=0.1)
+            # CPU使用率（非ブロッキング）
+            cpu_percent = psutil.cpu_percent(interval=None)
             vital_signs['cpu_usage'] = VitalSign(
                 name="CPU使用率",
                 value=cpu_percent,

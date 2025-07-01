@@ -67,7 +67,7 @@ class ThreatDetector:
             'security_threats': [
                 'delete', 'remove', 'rm ', 'format', 'sudo', 'admin',
                 'password', 'private', 'secret', 'token', 'key',
-                'system', 'root', 'kernel', 'registry'
+                'system', 'root', 'kernel', 'registry', '削除', '削除コマンド'
             ],
             # リソース消費パターン
             'resource_intensive': [
@@ -77,20 +77,30 @@ class ThreatDetector:
             # 複雑性パターン
             'complexity_markers': [
                 'complex', 'difficult', 'advanced', 'expert',
-                'sophisticated', 'intricate', 'comprehensive'
+                'sophisticated', 'intricate', 'comprehensive',
+                'analyze', '分析', 'report', '報告書', 'machine learning', '機械学習'
             ],
             # 破壊的操作
             'destructive_operations': [
                 'overwrite', 'replace', 'destroy', 'clear',
-                'reset', 'wipe', 'purge', 'cleanup'
+                'reset', 'wipe', 'purge', 'cleanup', '削除', '消去',
+                'ファイル削除', 'データ削除', '危険', 'システム削除'
             ]
         }
         
+        # ポジティブなパターン（脅威減算用）
+        self.positive_patterns = [
+            'backup', 'バックアップ', '保存', 'save', 'protect', '保護',
+            'create', '作成', 'build', '構築', 'analyze', '分析',
+            'read', '読む', 'view', '表示', 'list', '一覧', 'show',
+            'learn', '学習', 'study', '研究', 'について', '調べ'
+        ]
+        
         self.threat_weights = {
-            'security_threats': 5.0,
+            'security_threats': 6.0,
             'resource_intensive': 3.0,
-            'complexity_markers': 2.0,
-            'destructive_operations': 4.0
+            'complexity_markers': 3.0,
+            'destructive_operations': 5.0
         }
         
         # 学習された脅威パターン
@@ -120,6 +130,20 @@ class ThreatDetector:
                     threat_score += weight
                     detected_patterns['learned'] = detected_patterns.get('learned', [])
                     detected_patterns['learned'].append({'pattern': pattern, 'weight': weight})
+            
+            # ポジティブパターンによる脅威軽減
+            positive_matches = [pattern for pattern in self.positive_patterns if pattern in description_lower]
+            if positive_matches:
+                # 分析系タスクは軽減量を調整
+                if 'analyze' in description_lower or '分析' in description_lower:
+                    positive_reduction = len(positive_matches) * 1.0  # 分析は軽減控えめ
+                else:
+                    positive_reduction = len(positive_matches) * 2.0  # その他は大幅軽減
+                threat_score = max(0, threat_score - positive_reduction)
+                detected_patterns['positive'] = {
+                    'matches': positive_matches,
+                    'reduction': positive_reduction
+                }
             
             # タスクタイプによる調整
             type_multiplier = self._get_type_risk_multiplier(task_type)
@@ -165,11 +189,11 @@ class ThreatDetector:
         """スコアから脅威レベルを判定"""
         if score <= 1.0:
             return ThreatLevel.SAFE
-        elif score <= 3.0:
+        elif score <= 2.5:
             return ThreatLevel.LOW
-        elif score <= 6.0:
+        elif score <= 5.0:
             return ThreatLevel.MODERATE
-        elif score <= 10.0:
+        elif score <= 8.0:
             return ThreatLevel.HIGH
         else:
             return ThreatLevel.CRITICAL
@@ -601,7 +625,7 @@ class EmotionalProcessingSystem:
             
             # 感情的重みの計算
             emotional_weight = await self._calculate_emotional_significance(
-                threat_level, threat_score, past_experiences
+                threat_level, threat_score, past_experiences, task_description
             )
             
             # 信頼度の計算
@@ -681,7 +705,8 @@ class EmotionalProcessingSystem:
             logging.error(f"❌ 結果処理エラー: {e}")
     
     async def _calculate_emotional_significance(self, threat_level: ThreatLevel, 
-                                              threat_score: float, past_experiences: List[Experience]) -> float:
+                                              threat_score: float, past_experiences: List[Experience],
+                                              task_description: str = "") -> float:
         """感情的重要度の計算"""
         # 脅威による重み
         threat_weight = threat_score / 10.0  # 正規化
@@ -700,10 +725,19 @@ class EmotionalProcessingSystem:
         else:
             avg_experience_weight = 0.5  # デフォルト
         
+        # ポジティブパターンによる調整
+        positive_boost = 0.0
+        if task_description:
+            description_lower = task_description.lower()
+            positive_matches = [p for p in self.threat_detector.positive_patterns if p in description_lower]
+            if positive_matches:
+                positive_boost = len(positive_matches) * 0.1  # ポジティブ重み増加
+        
         # 総合的な感情的重み
         emotional_significance = (
             threat_weight * self.emotional_weights['threat_influence'] +
-            avg_experience_weight * self.emotional_weights['memory_influence']
+            avg_experience_weight * self.emotional_weights['memory_influence'] +
+            positive_boost * self.emotional_weights['reward_influence']
         )
         
         return min(max(emotional_significance, 0.0), 1.0)
@@ -734,35 +768,49 @@ class EmotionalProcessingSystem:
             valence = (success_rate - 0.5) * 2.0  # -1.0 to 1.0
         
         # 脅威による価値の調整
-        threat_penalty = (threat_level.value - 1) * 0.2
-        valence -= threat_penalty
+        if threat_level == ThreatLevel.SAFE:
+            valence += 0.3  # 安全なタスクはポジティブ寄り
+        elif threat_level == ThreatLevel.LOW:
+            valence += 0.1
+        elif threat_level == ThreatLevel.MODERATE:
+            valence -= 0.1  # 中程度の脅威は軽微なネガティブ
+        else:
+            threat_penalty = (threat_level.value - 3) * 0.3  # HIGHから強い罰則
+            valence -= threat_penalty
         
         # 覚醒度（arousal）: 低(0.0) ↔ 高(1.0)
         arousal = emotional_weight
         
-        # 脅威による覚醒度増加
-        arousal += (threat_level.value - 1) * 0.15
+        # 脅威による覚醒度増加（調整済み）
+        if threat_level == ThreatLevel.MODERATE:
+            arousal += 0.1  # MODERATE脅威は控えめに覚醒度増加
+        else:
+            arousal += (threat_level.value - 1) * 0.15
         
         return max(min(valence, 1.0), -1.0), max(min(arousal, 1.0), 0.0)
     
     def _determine_emotional_state(self, valence: float, arousal: float, 
                                  threat_level: ThreatLevel) -> EmotionalState:
         """感情状態の判定"""
+        # 脅威レベルを優先して判定
         if threat_level == ThreatLevel.CRITICAL:
             return EmotionalState.ANXIOUS
+        elif threat_level == ThreatLevel.HIGH:
+            return EmotionalState.ANXIOUS
         
-        if valence > 0.3:
-            if arousal > 0.6:
+        # 価値と覚醒度による判定（より敏感に）
+        if valence > 0.2:
+            if arousal > 0.5:
                 return EmotionalState.CONFIDENT
             else:
                 return EmotionalState.POSITIVE
-        elif valence < -0.3:
-            if arousal > 0.6:
+        elif valence < -0.1:
+            if arousal > 0.5:
                 return EmotionalState.FRUSTRATED
             else:
                 return EmotionalState.NEGATIVE
         else:
-            if arousal > 0.7:
+            if arousal > 0.6:
                 return EmotionalState.ANXIOUS
             else:
                 return EmotionalState.NEUTRAL

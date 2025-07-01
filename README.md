@@ -1,442 +1,269 @@
-# 無料オンラインLLM + Open Interpreter 実装仕様書
+# Free LLM Driver - 脳型統合AI処理システム
 
-## 1. プロジェクト概要
+## 🧠 プロジェクト概要
 
-### 目的
-無料のオンラインLLMサービスを活用した自己完結型タスク遂行AIエージェントシステムの構築
+**Free LLM Driver**は、生物学的脳構造を模倣した革新的なAI処理システムです。無料オンラインLLMサービスと脳幹・大脳辺縁系・大脳皮質の機能を統合し、感情・学習・適応能力を持つ次世代AIエージェントを実現します。
 
-### アーキテクチャ概要
-- **LLMバックエンド**: 無料オンラインAPI（Google Gemini、Groq、Together AI等）
-- **エージェントフレームワーク**: Open Interpreter + カスタムオーケストレーター
-- **実行モード**: ハイブリッド（推論はクラウド、実行はローカル）
+### ✨ 主な特徴
 
-## 2. 無料LLMサービス選択肢
+- 🧠 **脳型統合アーキテクチャ**: 生物学的脳構造の3層システム
+- 💭 **感情的知能**: 脅威検知・記憶・報酬による感情的判断
+- 🎯 **高次認知制御**: 注意管理・競合解決・メタ認知監視
+- 🔄 **24/7監視システム**: Neural Kernelによる継続的システム監視
+- 📚 **適応学習**: 経験からの自動学習と改善
+- 🌐 **無料LLM活用**: 複数の無料APIを効率的に統合使用
 
-### 2.1 推奨無料サービス
-| サービス | モデル | 月間制限 | レスポンス速度 | 推奨用途 |
-|---------|-------|---------|--------------|---------|
-| **Google AI Studio** | Gemini 1.5 Flash | 1,500 req/day | 高速 | メイン推論 |
-| **Groq** | Llama 3.1 70B | 14,400 req/day | 超高速 | コード生成 |
-| **Together AI** | Llama 3.1 8B | 200 req/month | 中速 | バックアップ |
-| **Hugging Face** | Code Llama | 1,000 req/day | 中速 | 特殊タスク |
+## 🏗️ システムアーキテクチャ
 
-### 2.2 フォールバック戦略
-```python
-# プロバイダー優先順位設定
-PROVIDER_PRIORITY = [
-    "google_gemini",     # メイン
-    "groq_llama",        # 高速処理用
-    "together_ai",       # バックアップ
-    "huggingface"        # 最終手段
-]
+### 脳型3層構造
+
+```
+┌─────────────────────────────────────────────────────────┐
+│                大脳皮質 (Executive Controller)              │
+│  🎯 高次認知制御・意思決定・メタ認知監視・競合解決             │
+└─────────────────────┬───────────────────────────────────┘
+                      │ フィードバック
+┌─────────────────────┴───────────────────────────────────┐
+│              大脳辺縁系 (Emotional System)                │
+│  💭 感情処理・脅威検知・適応記憶・報酬学習                   │
+└─────────────────────┬───────────────────────────────────┘
+                      │ 生理的フィードバック  
+┌─────────────────────┴───────────────────────────────────┐
+│                脳幹 (Neural Kernel)                     │
+│  🔋 24/7システム監視・リソース管理・緊急事態対応            │
+└─────────────────────────────────────────────────────────┘
 ```
 
-## 3. システム要件
+### 統合神経システム
 
-### 3.1 ハードウェア要件（大幅軽量化）
-- **最小構成**:
-  - RAM: 4GB以上
-  - ストレージ: 5GB以上
-  - ネットワーク: 安定したインターネット接続
-- **推奨構成**:
-  - RAM: 8GB以上
-  - ストレージ: 10GB以上
-  - ネットワーク: 高速ブロードバンド
+```python
+# 脳型統合処理の例
+async def process_goal_neural(user_goal: str):
+    # 1. 脳幹レベル: システム状態確認
+    system_state = await neural_kernel.get_system_state()
+    
+    # 2. 大脳辺縁系: 感情的・記憶的評価
+    emotional_context = await emotional_system.evaluate_task_emotion(user_goal)
+    
+    # 3. 処理モード決定 (EMERGENCY/ANALYTICAL/INTUITIVE/MAINTENANCE)
+    processing_mode = determine_processing_mode(system_state, emotional_context)
+    
+    # 4. 大脳皮質: 高次認知処理
+    executive_decision = await executive_controller.executive_decision(
+        task_options, integrated_context
+    )
+    
+    # 5. 実行とフィードバック学習
+    result = await execute_with_monitoring(executive_decision)
+    await neural_learning_integration(goal, decision, result)
+    
+    return result
+```
 
-### 3.2 ソフトウェア要件
-- **OS**: Windows 10+, macOS 10.14+, Ubuntu 18.04+
-- **Python**: 3.8以上
-- **必須パッケージ**: requests, asyncio, openai-compatible clients
+## 🚀 クイックスタート
 
-## 4. 無料APIキー取得・設定
+### 1. インストール
 
-### 4.1 各サービスのセットアップ
 ```bash
-# Google AI Studio
-# https://makersuite.google.com/app/apikey でAPIキー取得
-
-# Groq
-# https://console.groq.com/keys でAPIキー取得
-
-# Together AI
-# https://api.together.xyz/settings/api-keys でAPIキー取得
-
-# 環境変数設定
-export GOOGLE_API_KEY="your_google_api_key"
-export GROQ_API_KEY="your_groq_api_key"
-export TOGETHER_API_KEY="your_together_api_key"
+git clone https://github.com/your-repo/Free-LLM-Driver.git
+cd Free-LLM-Driver
+pip install -r requirements.txt
 ```
 
-### 4.2 レート制限管理
-```python
-# config/rate_limits.yaml
-rate_limits:
-  google_gemini:
-    requests_per_minute: 60
-    requests_per_day: 1500
-    
-  groq_llama:
-    requests_per_minute: 30
-    requests_per_day: 14400
-    
-  together_ai:
-    requests_per_minute: 10
-    requests_per_month: 200
+### 2. 環境設定
+
+```bash
+# .envファイルを作成してAPIキーを設定
+cp .env.example .env
+
+# APIキーを取得・設定
+# Google AI Studio: https://makersuite.google.com/app/apikey
+# Groq: https://console.groq.com/keys
+# Together AI: https://api.together.xyz/settings/api-keys
 ```
 
-## 5. コンポーネント設計
-
-### 5.1 軽量化されたコアコンポーネント
-```
-project_root/
-├── src/
-│   ├── agent/
-│   │   ├── __init__.py
-│   │   ├── task_planner.py      # タスク分割（軽量化）
-│   │   ├── executor.py          # ローカル実行
-│   │   ├── reflector.py         # 簡易評価
-│   │   └── orchestrator.py      # 軽量オーケストレーション
-│   ├── llm/
-│   │   ├── __init__.py
-│   │   ├── provider_manager.py  # マルチプロバイダー管理
-│   │   ├── rate_limiter.py      # レート制限管理
-│   │   └── fallback_handler.py  # フォールバック処理
-│   ├── tools/
-│   │   ├── __init__.py
-│   │   ├── local_executor.py    # ローカル実行のみ
-│   │   └── web_tools.py         # 軽量Web操作
-│   └── utils/
-│       ├── __init__.py
-│       ├── cache_manager.py     # レスポンスキャッシュ
-│       └── quota_tracker.py     # 使用量追跡
-├── config/
-│   ├── providers.yaml           # プロバイダー設定
-│   └── limits.yaml              # 制限設定
-├── requirements.txt
-└── main.py
+```env
+GOOGLE_API_KEY=your_google_api_key
+GROQ_API_KEY=your_groq_api_key  
+TOGETHER_API_KEY=your_together_api_key
 ```
 
-## 6. LLMプロバイダー管理実装
+### 3. システム確認
 
-### 6.1 マルチプロバイダー対応
-```python
-class LLMProviderManager:
-    def __init__(self):
-        self.providers = {
-            'google_gemini': GoogleGeminiProvider(),
-            'groq_llama': GroqProvider(),
-            'together_ai': TogetherAIProvider(),
-        }
-        self.rate_limiter = RateLimiter()
-        
-    async def get_completion(self, prompt: str, task_type: str = "general") -> str:
-        """最適なプロバイダーでLLM推論実行"""
-        
-        # タスクタイプ別の最適プロバイダー選択
-        optimal_provider = self._select_provider(task_type)
-        
-        try:
-            # レート制限チェック
-            if self.rate_limiter.can_make_request(optimal_provider):
-                return await self._make_request(optimal_provider, prompt)
-            else:
-                # フォールバック実行
-                return await self._fallback_request(prompt, task_type)
-                
-        except Exception as e:
-            return await self._handle_provider_error(e, prompt, task_type)
-    
-    def _select_provider(self, task_type: str) -> str:
-        """タスクタイプに基づく最適プロバイダー選択"""
-        provider_map = {
-            "code_generation": "groq_llama",      # 高速コード生成
-            "complex_reasoning": "google_gemini",  # 複雑な推論
-            "simple_task": "together_ai",         # 簡単なタスク
-            "general": "google_gemini"            # デフォルト
-        }
-        return provider_map.get(task_type, "google_gemini")
+```bash
+# セットアップ確認
+python check_setup.py
+
+# 統合システムテスト
+python test_integrated_brain.py
 ```
 
-### 6.2 レート制限・キャッシュ管理
-```python
-class RateLimiter:
-    def __init__(self):
-        self.request_counts = defaultdict(lambda: defaultdict(int))
-        self.last_reset = defaultdict(datetime.now)
-        
-    def can_make_request(self, provider: str) -> bool:
-        """リクエスト可能性チェック"""
-        limits = self._get_provider_limits(provider)
-        current_count = self.request_counts[provider]
-        
-        # 日次制限チェック
-        if current_count['daily'] >= limits['daily']:
-            return False
-            
-        # 分次制限チェック
-        if current_count['minute'] >= limits['minute']:
-            return False
-            
-        return True
+### 4. 基本的な使用方法
 
-class ResponseCache:
-    def __init__(self, max_size: int = 1000):
-        self.cache = {}
-        self.max_size = max_size
-        
-    def get_cached_response(self, prompt_hash: str) -> Optional[str]:
-        """キャッシュからレスポンス取得"""
-        return self.cache.get(prompt_hash)
-        
-    def cache_response(self, prompt_hash: str, response: str):
-        """レスポンスをキャッシュに保存"""
-        if len(self.cache) >= self.max_size:
-            # LRU削除
-            oldest_key = next(iter(self.cache))
-            del self.cache[oldest_key]
-        self.cache[prompt_hash] = response
+```bash
+# インタラクティブモード
+python main.py -i
+
+# 直接目標実行
+python main.py --goal "Pythonでファイル管理ツールを作成"
+
+# システム状況確認
+python main.py --status
+
+# 最適化状況確認
+python main.py --optimize
 ```
 
-## 7. 軽量化されたエージェント実装
+## 🧪 テスト結果
 
-### 7.1 効率的なタスクプランナー
-```python
-class EfficientTaskPlanner:
-    def __init__(self, llm_manager: LLMProviderManager):
-        self.llm_manager = llm_manager
-        self.cache = ResponseCache()
-        
-    async def decompose_goal(self, goal: str) -> List[Task]:
-        """目標の効率的分割（キャッシュ活用）"""
-        
-        # シンプルなプロンプトでAPI使用量削減
-        prompt = f"""
-        Goal: {goal}
-        
-        Break this into 3-5 concrete, executable tasks.
-        Format: Task1: description | Task2: description | Task3: description
-        """
-        
-        # キャッシュチェック
-        prompt_hash = hashlib.md5(prompt.encode()).hexdigest()
-        cached_result = self.cache.get_cached_response(prompt_hash)
-        
-        if cached_result:
-            return self._parse_tasks(cached_result)
-            
-        # LLM実行
-        response = await self.llm_manager.get_completion(
-            prompt, 
-            task_type="simple_task"
-        )
-        
-        # キャッシュ保存
-        self.cache.cache_response(prompt_hash, response)
-        
-        return self._parse_tasks(response)
+最新のシステムテスト結果：
+
+```
+🎯 総合テスト結果
+============================================================
+✅ PASS 初期化テスト
+✅ PASS 目標処理テスト (5/5成功)
+✅ PASS フィードバックループテスト  
+✅ PASS 感情・認知統合テスト
+✅ PASS 学習・適応テスト
+
+📊 テスト結果サマリー: 100% (5/5)
+🎉 統合脳システムは良好に動作しています
 ```
 
-### 7.2 バッチ処理による効率化
-```python
-class BatchProcessor:
-    def __init__(self, llm_manager: LLMProviderManager):
-        self.llm_manager = llm_manager
-        self.batch_size = 3  # 複数タスクを一度に処理
-        
-    async def process_tasks_batch(self, tasks: List[Task]) -> List[Result]:
-        """複数タスクの一括処理でAPI呼び出し削減"""
-        
-        results = []
-        for i in range(0, len(tasks), self.batch_size):
-            batch = tasks[i:i + self.batch_size]
-            
-            # バッチプロンプト作成
-            batch_prompt = self._create_batch_prompt(batch)
-            
-            # 一括実行
-            batch_response = await self.llm_manager.get_completion(
-                batch_prompt,
-                task_type="general"
-            )
-            
-            # レスポンス分割
-            batch_results = self._parse_batch_response(batch_response, batch)
-            results.extend(batch_results)
-            
-        return results
-```
+## 🔧 設定
 
-## 8. 使用量監視・最適化
+### プロバイダー設定 (`config/providers.yaml`)
 
-### 8.1 クォータ追跡
-```python
-class QuotaTracker:
-    def __init__(self):
-        self.usage_log = defaultdict(list)
-        
-    def log_request(self, provider: str, tokens_used: int, cost: float = 0):
-        """API使用量記録"""
-        self.usage_log[provider].append({
-            'timestamp': datetime.now(),
-            'tokens': tokens_used,
-            'cost': cost
-        })
-        
-    def get_daily_usage(self, provider: str) -> dict:
-        """日次使用量取得"""
-        today = datetime.now().date()
-        today_usage = [
-            log for log in self.usage_log[provider]
-            if log['timestamp'].date() == today
-        ]
-        
-        return {
-            'requests': len(today_usage),
-            'tokens': sum(log['tokens'] for log in today_usage),
-            'cost': sum(log['cost'] for log in today_usage)
-        }
-```
-
-### 8.2 自動最適化
-```python
-class AutoOptimizer:
-    def __init__(self, quota_tracker: QuotaTracker):
-        self.quota_tracker = quota_tracker
-        
-    def optimize_provider_selection(self) -> dict:
-        """使用状況に基づく最適化推奨"""
-        
-        recommendations = {}
-        
-        for provider in ['google_gemini', 'groq_llama', 'together_ai']:
-            usage = self.quota_tracker.get_daily_usage(provider)
-            limit = self._get_daily_limit(provider)
-            
-            usage_ratio = usage['requests'] / limit
-            
-            if usage_ratio > 0.8:  # 80%超過
-                recommendations[provider] = "REDUCE_USAGE"
-            elif usage_ratio < 0.3:  # 30%未満
-                recommendations[provider] = "CAN_INCREASE"
-            else:
-                recommendations[provider] = "OPTIMAL"
-                
-        return recommendations
-```
-
-## 9. 設定例
-
-### 9.1 プロバイダー設定
 ```yaml
-# config/providers.yaml
 providers:
   google_gemini:
     model: "gemini-1.5-flash"
-    api_key_env: "GOOGLE_API_KEY"
-    base_url: "https://generativelanguage.googleapis.com/v1beta"
     max_tokens: 2048
     temperature: 0.7
     
   groq_llama:
     model: "llama3-70b-8192"
-    api_key_env: "GROQ_API_KEY"
-    base_url: "https://api.groq.com/openai/v1"
     max_tokens: 4096
     temperature: 0.3
     
   together_ai:
     model: "meta-llama/Llama-3-8b-chat-hf"
-    api_key_env: "TOGETHER_API_KEY"
-    base_url: "https://api.together.xyz/v1"
     max_tokens: 2048
     temperature: 0.5
 ```
 
-### 9.2 使用量制限設定
+### 制限設定 (`config/limits.yaml`)
+
 ```yaml
-# config/limits.yaml
 daily_limits:
-  google_gemini: 1500     # Google AI Studio無料枠
-  groq_llama: 14400       # Groq無料枠
-  together_ai: 6          # 月200÷30日
+  google_gemini: 1500
+  groq_llama: 14400
+  together_ai: 6
 
 optimization:
   enable_caching: true
   cache_ttl_hours: 24
-  batch_processing: true
-  max_batch_size: 3
-  
-fallback:
-  max_retries: 3
-  retry_delay_seconds: 5
-  emergency_provider: "together_ai"
+  neural_integration_level: "SEAMLESS"
 ```
 
-## 10. インストール・セットアップ
+## 📊 システム監視
 
-### 10.1 簡単インストール
-```bash
-# 依存関係インストール（軽量）
-pip install openai groq google-generativeai requests aiohttp
+### Neural Kernel 24/7監視
 
-# プロジェクトクローン
-git clone <repository_url>
-cd free-llm-agent
+- **監視頻度**: 100ms間隔 (10回/秒)
+- **バイタルサイン**: CPU・メモリ・ディスク・プロセス監視
+- **緊急対応**: 自動リソース調整・アラート生成
+- **状態管理**: HEALTHY/WARNING/CRITICAL/EMERGENCY
 
-# 環境設定
-cp .env.example .env
-# .envファイルにAPIキーを記入
+### 感情・学習システム
 
-# 初回セットアップ
-python setup.py
-```
+- **脅威検知**: 危険なコマンドを自動検出
+- **感情状態**: POSITIVE/NEUTRAL/NEGATIVE/ANXIOUS/CONFIDENT/FRUSTRATED
+- **記憶学習**: 過去の経験から成功・失敗パターンを学習
+- **適応調整**: パフォーマンスに基づく動的システム調整
 
-### 10.2 設定確認スクリプト
-```python
-# setup_checker.py
-async def check_all_providers():
-    """全プロバイダーの動作確認"""
-    
-    manager = LLMProviderManager()
-    
-    for provider_name in ['google_gemini', 'groq_llama', 'together_ai']:
-        try:
-            test_response = await manager.get_completion(
-                "Hello, respond with 'OK'", 
-                provider=provider_name
-            )
-            print(f"✅ {provider_name}: {test_response}")
-        except Exception as e:
-            print(f"❌ {provider_name}: {str(e)}")
-```
+## 🎯 主要機能
 
-## 11. 運用上の注意点
+### 1. 脳幹機能 (Neural Kernel)
+- ✅ 24/7システム監視 (100ms間隔)
+- ✅ リソース枯渇の予防的検知
+- ✅ 緊急時の自動システム保護
+- ✅ 基本的な覚醒レベル調整
 
-### 11.1 コスト管理
-- **無料枠監視**: 日次・月次使用量の厳密な追跡
-- **自動停止**: 制限近接時の自動停止機能
-- **優先度制御**: 重要タスクの優先実行
+### 2. 大脳辺縁系機能 (Emotional System)
+- ✅ 脅威検出システム (扁桃体機能)
+- ✅ 適応記憶システム (海馬機能)
+- ✅ 報酬系による学習強化
+- ✅ 感情的重み付けによる優先度調整
 
-### 11.2 可用性対策
-- **マルチプロバイダー**: 単一障害点の排除
-- **グレースフル劣化**: サービス停止時の機能制限モード
-- **オフライン対応**: ネットワーク断絶時の基本機能維持
+### 3. 大脳皮質機能 (Executive Controller)
+- ✅ 作業記憶システム (7±2項目管理)
+- ✅ 動的注意リソース管理
+- ✅ 複数評価軸での競合解決
+- ✅ メタ認知的自己監視
 
-## 12. 実装スケジュール
+### 4. 統合神経システム
+- ✅ 多層時間スケールでの学習
+- ✅ 感情と理性の動的バランス調整
+- ✅ 自己適応型システム最適化
+- ✅ 創発的な問題解決能力
 
-### Phase 1: 基盤構築（1週間）
-1. マルチプロバイダー管理システム
-2. レート制限・キャッシュ機能
-3. 基本的なタスク実行
+## 📈 使用量管理
 
-### Phase 2: 最適化（1週間）
-1. バッチ処理機能
-2. 使用量監視・自動最適化
-3. フォールバック機能
+### 無料APIクォータ管理
+- **Google Gemini**: 1,500 req/day
+- **Groq**: 14,400 req/day  
+- **Together AI**: 200 req/month
 
-### Phase 3: 統合・テスト（3-5日）
-1. エージェント機能統合
-2. エラーハンドリング
-3. 動作テスト・調整
+### 自動最適化
+- 使用量に基づくプロバイダー自動選択
+- キャッシュ機能によるAPI使用量削減
+- 失敗時の自動フォールバック
 
-この設計により、**高価なローカルGPUの代わりに複数の無料クラウドサービスを組み合わせる**ことで、まるで**複数の専門家チームを適材適所で活用する**ような効率的なシステムを構築できます。
+## 🔍 ログとデータ
+
+- **ログファイル**: `logs/free_llm_driver.log`
+- **使用量データ**: `logs/usage_data.json` 
+- **キャッシュデータ**: `.cache/llm_responses.cache`
+- **学習データ**: 各システムコンポーネントが自動管理
+
+## 🚨 トラブルシューティング
+
+### APIエラーが発生する場合
+1. APIキーが正しく設定されているか確認
+2. プロバイダーの無料枠を超過していないか確認
+3. ネットワーク接続を確認
+
+### パフォーマンスが遅い場合
+1. キャッシュが有効になっているか確認
+2. 最適化推奨事項を確認（`--optimize`）
+3. 使用量の多いプロバイダーを制限
+
+### 統合システムエラー
+1. `python test_integrated_brain.py` でシステム状態確認
+2. Neural Kernel監視状況確認
+3. ログファイル（`logs/free_llm_driver.log`）を確認
+
+## 🤝 コントリビューション
+
+このプロジェクトへの貢献を歓迎します：
+
+1. Issue報告
+2. 機能提案
+3. プルリクエスト
+4. ドキュメント改善
+
+## 📄 ライセンス
+
+このプロジェクトはMITライセンスの下で公開されています。
+
+## 🙏 謝辞
+
+- 無料LLMプロバイダー各社のAPI提供
+- 生物学的脳機能研究のインスパイア
+- オープンソースコミュニティのサポート
+
+---
+
+**Free LLM Driver** - 脳の仕組みを理解し、それをAIで再現する挑戦的なプロジェクトです。
